@@ -66,6 +66,7 @@ export default function Portfolio() {
                     src={p.image}
                     alt={p.name}
                     fill
+                    unoptimized
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                   {/* Overlay for better text contrast if needed, or just let image shine */}
