@@ -1,11 +1,5 @@
 services:
-  - type: web
+  - type: static_site
     name: nitin-pandey-portfolio
-    env: node
     buildCommand: npm install && npm run build
-    startCommand: npm run start
-    envVars:
-      - key: NODE_VERSION
-        value: 18.17.0
-      - key: GROQ_API_KEY
-        sync: false
+    staticPublishPath: ./out
