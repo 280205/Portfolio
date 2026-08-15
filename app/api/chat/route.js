@@ -4,10 +4,8 @@ import { profile, services, education, experience, skills, certifications, proje
 // Server-side only — never exposed to the browser. Set GROQ_API_KEY in .env.local
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-// Current Groq model as of mid-2026. If this errors with "model not found",
-// check https://console.groq.com/docs/models for the current recommended model
-// and update MODEL below (Groq deprecates/rotates models periodically).
-const MODEL = "openai/gpt-oss-120b";
+// Current active Groq model
+const MODEL = "llama-3.3-70b-versatile";
 
 function buildContext() {
   return `

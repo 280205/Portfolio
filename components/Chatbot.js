@@ -16,27 +16,27 @@ function getGreetingTime() {
 function getBotResponse(input) {
   const text = input.toLowerCase();
 
-  if (text.includes("skill") || text.includes("tech") || text.includes("stack") || text.includes("design systems")) {
-    return `Nitin is highly skilled in: ${techStack.map((t) => t.name).slice(0, 10).join(", ")}, along with Generative AI and full-stack MERN development.`;
+  if (text.includes("skill") || text.includes("tech") || text.includes("stack") || text.includes("design systems") || text.includes("language") || text.includes("framework")) {
+    return `Nitin is highly skilled in: ${techStack.map((t) => t.name).slice(0, 10).join(", ")}, along with Generative AI (LLMs, RAG, ChromaDB) and full-stack web development.`;
   }
 
-  if (text.includes("project") || text.includes("work") || text.includes("different") || text.includes("portfolio")) {
-    return `Nitin has engineered standout intelligent projects like ${projects[0].name} (${projects[0].category}) and ${projects[1].name}.`;
+  if (text.includes("project") || text.includes("work") || text.includes("different") || text.includes("portfolio") || text.includes("build") || text.includes("made")) {
+    return `Nitin has engineered standout projects including: 1) ${projects[0].name} (${projects[0].category}), 2) ${projects[1].name} (${projects[1].category}), and 3) ${projects[2].name}.`;
   }
 
-  if (text.includes("experience") || text.includes("career") || text.includes("highlight") || text.includes("internship")) {
-    return `Nitin interned as a ${experience[0].role} at ${experience[0].org}, architecting scalable web applications and AI tools.`;
+  if (text.includes("experience") || text.includes("exp") || text.includes("career") || text.includes("highlight") || text.includes("intern") || text.includes("work") || text.includes("job")) {
+    return `Nitin interned as a ${experience[0].role} at ${experience[0].org} (${experience[0].period}), where he engineered scalable web applications and AI tools, improving order fulfillment efficiency by 30%.`;
   }
 
-  if (text.includes("talk") || text.includes("contact") || text.includes("email") || text.includes("hire")) {
+  if (text.includes("talk") || text.includes("contact") || text.includes("email") || text.includes("hire") || text.includes("reach") || text.includes("message")) {
     return `You can reach out directly to Nitin at ${profile.email} or connect via LinkedIn and GitHub!`;
   }
 
-  if (text.includes("hi") || text.includes("hello") || text.includes("hey")) {
+  if (text.includes("hi") || text.includes("hello") || text.includes("hey") || text.includes("greetings")) {
     return `Hello! How can I assist you in exploring Nitin's background today?`;
   }
 
-  return `That's a great question! For detailed discussions, feel free to drop Nitin an email at ${profile.email}.`;
+  return `Nitin is a Software Engineer specializing in AI Applications and Full Stack Web Development (CGPA: 8.70, 7+ major projects). For detailed inquiries, feel free to drop him an email at ${profile.email}!`;
 }
 
 export default function Chatbot() {
