@@ -116,22 +116,24 @@ export default function Chatbot() {
         body: JSON.stringify({ messages: nextMessages }),
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        if (data.reply) {
-          setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
-          setLoading(false);
-          return;
-        }
+      const data = await res.json();
+      if (data.reply) {
+        setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
+      } else {
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: "Error calling Groq API. Please check your GROQ_API_KEY environment variable on Render." },
+        ]);
       }
     } catch (err) {
-      console.warn("Groq API route unavailable, using intelligent fallback", err);
+      console.error("Groq API error:", err);
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: "Failed to connect to /api/chat. Ensure Render is running as a Web Service with GROQ_API_KEY set." },
+      ]);
+    } finally {
+      setLoading(false);
     }
-
-    // Fallback if API route is not hosted as a Web Service
-    const reply = getBotResponse(text);
-    setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
-    setLoading(false);
   };
 
   const onKeyDown = (e) => {

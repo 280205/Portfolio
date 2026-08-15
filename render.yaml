@@ -1,5 +1,9 @@
 services:
-  - type: static_site
+  - type: web
     name: nitin-pandey-portfolio
+    env: node
     buildCommand: npm install && npm run build
-    staticPublishPath: ./out
+    startCommand: npm run start
+    envVars:
+      - key: NODE_VERSION
+        value: 18.17.0
