@@ -16,6 +16,14 @@ function getGreetingTime() {
 function getBotResponse(input) {
   const text = input.toLowerCase();
 
+  if (text.includes("phone") || text.includes("number") || text.includes("call") || text.includes("mobile") || text.includes("whatsapp")) {
+    return `Nitin's phone number is ${profile.phone} and his email is ${profile.email}.`;
+  }
+
+  if (text.includes("cgpa") || text.includes("gpa") || text.includes("education") || text.includes("college") || text.includes("university") || text.includes("degree") || text.includes("vit")) {
+    return `Nitin is pursuing B.Tech in Computer Science & Business Systems at VIT-AP University with a CGPA of 8.70 (Graduating 2026).`;
+  }
+
   if (text.includes("skill") || text.includes("tech") || text.includes("stack") || text.includes("design systems") || text.includes("language") || text.includes("framework")) {
     return `Nitin is highly skilled in: ${techStack.map((t) => t.name).slice(0, 10).join(", ")}, along with Generative AI (LLMs, RAG, ChromaDB) and full-stack web development.`;
   }
@@ -24,19 +32,19 @@ function getBotResponse(input) {
     return `Nitin has engineered standout projects including: 1) ${projects[0].name} (${projects[0].category}), 2) ${projects[1].name} (${projects[1].category}), and 3) ${projects[2].name}.`;
   }
 
-  if (text.includes("experience") || text.includes("exp") || text.includes("career") || text.includes("highlight") || text.includes("intern") || text.includes("work") || text.includes("job")) {
+  if (text.includes("experience") || text.includes("exp") || text.includes("career") || text.includes("highlight") || text.includes("intern") || text.includes("job")) {
     return `Nitin interned as a ${experience[0].role} at ${experience[0].org} (${experience[0].period}), where he engineered scalable web applications and AI tools, improving order fulfillment efficiency by 30%.`;
   }
 
   if (text.includes("talk") || text.includes("contact") || text.includes("email") || text.includes("hire") || text.includes("reach") || text.includes("message")) {
-    return `You can reach out directly to Nitin at ${profile.email} or connect via LinkedIn and GitHub!`;
+    return `You can reach out directly to Nitin at ${profile.email} or call him at ${profile.phone}!`;
   }
 
   if (text.includes("hi") || text.includes("hello") || text.includes("hey") || text.includes("greetings")) {
     return `Hello! How can I assist you in exploring Nitin's background today?`;
   }
 
-  return `Nitin is a Software Engineer specializing in AI Applications and Full Stack Web Development (CGPA: 8.70, 7+ major projects). For detailed inquiries, feel free to drop him an email at ${profile.email}!`;
+  return `Nitin is a Software Engineer specializing in AI Applications and Full Stack Web Development (CGPA: 8.70, Phone: ${profile.phone}, Email: ${profile.email}). How can I help you regarding his work?`;
 }
 
 export default function Chatbot() {
@@ -92,7 +100,7 @@ export default function Chatbot() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
-  const sendQuery = (textQuery) => {
+  const sendQuery = async (textQuery) => {
     const text = textQuery.trim();
     if (!text || loading) return;
 
@@ -101,11 +109,29 @@ export default function Chatbot() {
     setInput("");
     setLoading(true);
 
-    setTimeout(() => {
-      const reply = getBotResponse(text);
-      setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
-      setLoading(false);
-    }, 500);
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: nextMessages }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.reply) {
+          setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
+          setLoading(false);
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn("Groq API route unavailable, using intelligent fallback", err);
+    }
+
+    // Fallback if API route is not hosted as a Web Service
+    const reply = getBotResponse(text);
+    setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
+    setLoading(false);
   };
 
   const onKeyDown = (e) => {
