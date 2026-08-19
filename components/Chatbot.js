@@ -189,14 +189,16 @@ export default function Chatbot() {
         {inHero && !open && (
           <motion.div
             initial={{ opacity: 0, y: 20, x: "-50%" }}
-            animate={{ opacity: 1, y: 0, x: "-50%" }}
-            exit={{ opacity: 0, y: 20, x: "-50%" }}
+            animate={{ opacity: 1, y: 0,  x: "-50%" }}
+            exit={{ opacity: 0, y: 20,    x: "-50%" }}
             transition={{ duration: 0.4, ease: "easeOut" }}
-            className="fixed bottom-6 left-1/2 z-40 pointer-events-auto"
+            className="fixed bottom-6 left-1/2 z-50 pointer-events-auto"
+            style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
           >
             <button
               onClick={() => setOpen(true)}
-              className="group flex items-center gap-2 sm:gap-3 px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-full border border-white/20 bg-[#0d0d12]/95 backdrop-blur-xl shadow-2xl hover:border-purple-500/50 hover:shadow-purple-500/20 transition-all duration-300 active:scale-95 cursor-pointer max-w-[90vw]"
+              style={{ touchAction: "manipulation" }}
+              className="group flex items-center gap-2 sm:gap-3 px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-full border border-white/20 bg-[#0d0d12]/95 backdrop-blur-xl shadow-2xl hover:border-purple-500/50 hover:shadow-purple-500/20 transition-all duration-300 active:scale-95 cursor-pointer"
             >
               {/* Animated Glowing Orb Icon */}
               <div className="relative w-7 h-7 rounded-full bg-gradient-to-tr from-indigo-600 via-purple-500 to-pink-400 p-[1px] shadow-[0_0_12px_rgba(168,85,247,0.6)] animate-pulse">
@@ -205,11 +207,12 @@ export default function Chatbot() {
                 </div>
               </div>
 
-              <span className="text-sm font-semibold text-white tracking-wide">
+              <span className="text-sm font-semibold text-white tracking-wide whitespace-nowrap">
                 Ask me anything
               </span>
 
-              <span className="flex items-center px-2 py-0.5 rounded-md bg-white/10 text-[11px] font-mono text-white/70">
+              {/* Hide ⌘K on mobile — keyboard shortcut doesn't apply */}
+              <span className="hidden sm:flex items-center px-2 py-0.5 rounded-md bg-white/10 text-[11px] font-mono text-white/70">
                 ⌘K
               </span>
             </button>

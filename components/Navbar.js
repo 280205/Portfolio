@@ -17,8 +17,14 @@ export default function Navbar() {
   }, []);
 
   const go = (id) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
     setMenuOpen(false);
+    // Small delay so menu closes before scroll fires (needed when GSAP pin is active)
+    setTimeout(() => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      // Temporarily kill GSAP pin scroll-locks by scrolling to element's offsetTop
+      window.scrollTo({ top: el.offsetTop, behavior: "smooth" });
+    }, 50);
   };
 
   return (
@@ -84,10 +90,10 @@ export default function Navbar() {
 
       {/* Mobile Menu Overlay */}
       <div
-        className={`fixed inset-0 z-40 flex flex-col items-center justify-center gap-6 bg-ink/95 backdrop-blur-2xl transition-all duration-500 lg:hidden pointer-events-auto ${
+        className={`fixed inset-0 z-40 flex flex-col items-center justify-center gap-6 bg-ink/95 backdrop-blur-2xl transition-all duration-500 lg:hidden ${
           menuOpen
-            ? "opacity-100"
-            : "pointer-events-none opacity-0"
+            ? "opacity-100 visible pointer-events-auto"
+            : "opacity-0 invisible pointer-events-none"
         }`}
       >
         {nav.map((item, i) => (

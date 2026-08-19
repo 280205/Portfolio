@@ -105,6 +105,26 @@ export default function Hero() {
     if (prefersReduced) return;
 
     const ctx = gsap.context(() => {
+      if (isMobile) {
+        // On mobile: NO pin — just a simple fade-out as user scrolls away.
+        // The pin caused all nav section links to stop working on mobile.
+        gsap.timeline({
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top top",
+            end: "bottom top",
+            scrub: true,
+            onUpdate: (self) => {
+              particlesRef.current?.update(self.progress);
+            },
+          },
+        })
+          .to(contentRef.current, { opacity: 0, ease: "none" }, 0)
+          .to(portraitRef.current, { opacity: 0, ease: "none" }, 0);
+        return;
+      }
+
+      // Desktop: full cinematic parallax + pin
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
@@ -121,23 +141,23 @@ export default function Hero() {
 
       // Portrait: scale + shift right + fade
       tl.to(portraitRef.current, {
-        scale: 1.25, x: isMobile ? 0 : 220, opacity: 0, ease: "none",
+        scale: 1.25, x: 220, opacity: 0, ease: "none",
       }, 0);
 
       // Content: shift left + fade
       tl.to(contentRef.current, {
-        x: isMobile ? 0 : -80, opacity: 0, ease: "none",
+        x: -80, opacity: 0, ease: "none",
       }, 0);
 
       // Background: counter-shift
       tl.to(bgRef.current, {
-        x: isMobile ? 0 : -40, scale: 1.08, ease: "none",
+        x: -40, scale: 1.08, ease: "none",
       }, 0);
 
       // Background text: move opposite
       if (bgTextRef.current) {
         tl.to(bgTextRef.current, {
-          x: isMobile ? 0 : 150, opacity: 0, ease: "none",
+          x: 150, opacity: 0, ease: "none",
         }, 0);
       }
 
