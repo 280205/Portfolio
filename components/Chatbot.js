@@ -109,34 +109,22 @@ export default function Chatbot() {
     setInput("");
     setLoading(true);
 
-    try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: nextMessages }),
-      });
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: nextMessages }),
+    });
 
-      if (res.ok) {
-        const data = await res.json();
-        // Only use the API reply if it's a real answer (not a server-side error message)
-        if (
-          data.reply &&
-          !data.reply.includes("Something went wrong") &&
-          !data.reply.includes("GROQ_API_KEY") &&
-          !data.reply.includes("isn't configured")
-        ) {
-          setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
-          setLoading(false);
-          return;
-        }
-      }
-    } catch (err) {
-      // Network error or static export host — fall through to local intelligence
+    const data = await res.json();
+
+    if (data.reply) {
+      setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
+    } else {
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: "Sorry, something went wrong. Please try again." },
+      ]);
     }
-
-    // Client-side intelligence engine for static exports
-    const reply = getBotResponse(text);
-    setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
     setLoading(false);
   };
 
