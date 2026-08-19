@@ -295,7 +295,7 @@ export default function Hero() {
             <button className="hero-btn hero-btn--secondary" onClick={() => go("contact")} aria-label="Contact Me">
               Contact Me
             </button>
-            <a href="https://drive.google.com/file/d/1t16p-GCzNery2ftuYf1LSU6X1TP2oYJJ/view?usp=sharing" target="_blank" rel="noopener noreferrer" className="hero-btn hero-btn--secondary" aria-label="Download Resume">
+            <a href="https://drive.google.com/file/d/1DQU8yp83FeeKNPn360Px6njEVq-HDpNI/view?usp=sharing" target="_blank" rel="noopener noreferrer" className="hero-btn hero-btn--secondary" aria-label="Download Resume">
               Resume
             </a>
           </div>
