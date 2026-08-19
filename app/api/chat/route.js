@@ -4,8 +4,9 @@ import { profile, services, education, experience, skills, certifications, proje
 // Server-side only — never exposed to the browser. Set GROQ_API_KEY in .env.local
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-// Current active Groq model
+// Current active Groq model — llama-3.3-70b-versatile with fallback
 const MODEL = "llama-3.3-70b-versatile";
+const MODEL_FALLBACK = "llama3-70b-8192";
 
 function buildContext() {
   return `
@@ -54,11 +55,12 @@ ${buildContext()}`;
 
 export async function POST(req) {
   try {
-    if (!process.env.GROQ_API_KEY) {
-      return Response.json(
-        { reply: "The chatbot isn't configured yet — GROQ_API_KEY is missing on the server." },
-        { status: 200 }
-      );
+    const key = process.env.GROQ_API_KEY;
+
+    // Skip API if key is missing or is the placeholder value
+    if (!key || key === "placeholder_key_for_build" || key.length < 20) {
+      console.log("chat route: no valid GROQ_API_KEY, returning 500 for client fallback");
+      return Response.json({ error: "no_api_key" }, { status: 500 });
     }
 
     const { messages } = await req.json();
@@ -73,20 +75,31 @@ export async function POST(req) {
       content: String(m.content).slice(0, 2000),
     }));
 
-    const completion = await groq.chat.completions.create({
-      model: MODEL,
-      messages: [{ role: "system", content: SYSTEM_PROMPT }, ...trimmed],
-      temperature: 0.6,
-      max_tokens: 500,
-    });
+    let reply = null;
 
-    const reply =
-      completion.choices?.[0]?.message?.content?.trim() ||
-      "Sorry, I couldn't come up with a reply just now — try asking again.";
+    // Try primary model first, fall back to secondary if it fails
+    for (const model of [MODEL, MODEL_FALLBACK]) {
+      try {
+        const completion = await groq.chat.completions.create({
+          model,
+          messages: [{ role: "system", content: SYSTEM_PROMPT }, ...trimmed],
+          temperature: 0.6,
+          max_tokens: 500,
+        });
+        reply = completion.choices?.[0]?.message?.content?.trim();
+        if (reply) break;
+      } catch (modelErr) {
+        console.error(`chat route: model ${model} failed:`, modelErr?.message || modelErr);
+      }
+    }
+
+    if (!reply) {
+      return Response.json({ error: "no_reply" }, { status: 500 });
+    }
 
     return Response.json({ reply });
   } catch (err) {
-    console.error("chat route error:", err);
+    console.error("chat route error:", err?.message || err);
     return Response.json(
       { error: "model_error" },
       { status: 500 }
