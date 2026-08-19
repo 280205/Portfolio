@@ -118,14 +118,20 @@ export default function Chatbot() {
 
       if (res.ok) {
         const data = await res.json();
-        if (data.reply) {
+        // Only use the API reply if it's a real answer (not a server-side error message)
+        if (
+          data.reply &&
+          !data.reply.includes("Something went wrong") &&
+          !data.reply.includes("GROQ_API_KEY") &&
+          !data.reply.includes("isn't configured")
+        ) {
           setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
           setLoading(false);
           return;
         }
       }
     } catch (err) {
-      // Static export host — fallback to client-side intelligence
+      // Network error or static export host — fall through to local intelligence
     }
 
     // Client-side intelligence engine for static exports

@@ -88,8 +88,8 @@ export async function POST(req) {
   } catch (err) {
     console.error("chat route error:", err);
     return Response.json(
-      { reply: "Something went wrong talking to the model. Please try again shortly." },
-      { status: 200 }
+      { error: "model_error" },
+      { status: 500 }
     );
   }
 }
