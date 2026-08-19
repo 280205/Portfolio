@@ -1,8 +1,8 @@
 import Groq from "groq-sdk";
 import { profile, services, education, experience, skills, certifications, projects } from "@/lib/data";
 
-// Server-side only — never exposed to the browser. Set GROQ_API_KEY in .env.local
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+// NOTE: groq client is initialized lazily inside the handler to ensure
+// process.env.GROQ_API_KEY is read at request time, not at cold-start time.
 
 // Current active Groq model — llama-3.3-70b-versatile with fallback
 const MODEL = "llama-3.3-70b-versatile";
@@ -56,14 +56,19 @@ ${buildContext()}`;
 export async function POST(req) {
   try {
     const key = process.env.GROQ_API_KEY;
+    console.log("chat route: key present =", !!key, "| length =", key?.length || 0);
 
     // Skip API if key is missing or is the placeholder value
     if (!key || key === "placeholder_key_for_build" || key.length < 20) {
-      console.log("chat route: no valid GROQ_API_KEY, returning 500 for client fallback");
+      console.log("chat route: invalid key — falling back");
       return Response.json({ error: "no_api_key" }, { status: 500 });
     }
 
+    // Lazy init — ensures we always use the live env var value
+    const groq = new Groq({ apiKey: key });
+
     const { messages } = await req.json();
+    console.log("chat route: messages count =", messages?.length);
 
     if (!Array.isArray(messages) || messages.length === 0) {
       return Response.json({ error: "messages array is required" }, { status: 400 });
@@ -80,6 +85,7 @@ export async function POST(req) {
     // Try primary model first, fall back to secondary if it fails
     for (const model of [MODEL, MODEL_FALLBACK]) {
       try {
+        console.log("chat route: trying model", model);
         const completion = await groq.chat.completions.create({
           model,
           messages: [{ role: "system", content: SYSTEM_PROMPT }, ...trimmed],
@@ -87,6 +93,7 @@ export async function POST(req) {
           max_tokens: 500,
         });
         reply = completion.choices?.[0]?.message?.content?.trim();
+        console.log("chat route: got reply from", model, "| length =", reply?.length || 0);
         if (reply) break;
       } catch (modelErr) {
         console.error(`chat route: model ${model} failed:`, modelErr?.message || modelErr);
@@ -94,6 +101,7 @@ export async function POST(req) {
     }
 
     if (!reply) {
+      console.error("chat route: all models failed, no reply");
       return Response.json({ error: "no_reply" }, { status: 500 });
     }
 
